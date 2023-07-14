@@ -1,13 +1,48 @@
-import { Button } from "bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.min.js";
 import { useEffect, useState } from "react";
-
+import axios from "axios";
 const App = () => {
+  const [task, setTask] = useState("");
   const [todo, setTodo] = useState([]);
 
-  const handleClick = async () => {};
-  const handleSubmit = async () => {};
+  const handleClick = () => {
+    axios
+      .post("http://127.0.0.1:8000/api/todos/", {
+        task: task,
+      })
+      .then((response) => {
+        setTask("");
+        console.log("data berhasil di simpan", response);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+  const handleDelete = (id) => {
+    axios
+      .delete(`http://127.0.0.1:8000/api/todos/${id}`)
+      .then((response) => {
+        console.log("data berhasil di hpus", response);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+  const handleUpdate = ({ data }) => {
+    axios
+      .put(`http://127.0.0.1:8000/api/todos/${data.id}`, {
+        task: data.task,
+        status: "Done",
+      })
+      .then((response) => {
+        console.log("data berhasil disimpan", response);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
   const onLoad = async () => {
     const res = await fetch("http://127.0.0.1:8000/api/todos/");
 
@@ -25,6 +60,8 @@ const App = () => {
           type="text"
           className="p-2 rounded-3 form-control no-border shadow-none"
           placeholder="Type your task in here"
+          onChange={(e) => setTask(e.target.value)}
+          value={task}
         />
         <button onClick={handleClick} className="btn btn-primary">
           Add
@@ -46,13 +83,17 @@ const App = () => {
                   <td> {data.task} </td>
                   <td>
                     {data.status === "Pending" ? (
-                      <form onSubmit={handleSubmit}>
-                        <button className="btn btn-danger">
-                          {data.status}{" "}
-                        </button>
-                      </form>
+                      <button
+                        onClick={() => handleUpdate({ data })}
+                        className="btn btn-danger"
+                      >
+                        {data.status}{" "}
+                      </button>
                     ) : (
-                      <button className="btn btn-success">
+                      <button
+                        onClick={() => handleDelete(data.id)}
+                        className="btn btn-success"
+                      >
                         {" "}
                         {data.status}{" "}
                       </button>
