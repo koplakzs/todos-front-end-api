@@ -13,7 +13,7 @@ const App = () => {
       })
       .then((response) => {
         setTask("");
-        console.log("data berhasil di simpan", response);
+        console.log(response);
       })
       .catch((err) => {
         console.log(err);
@@ -22,27 +22,33 @@ const App = () => {
   const handleDelete = (id) => {
     axios
       .delete(`http://127.0.0.1:8000/api/todos/${id}`)
-      .then((response) => {
-        console.log("data berhasil di hpus", response);
+      .then(() => {
+        setTodo((prevTodo) => prevTodo.filter((todo) => todo.id != id)); //membuat todo dengan memfilter todo.id yang tidak sama dengan id. sehingga todo yang ada tidak memiliki todo.id yang sama dengan id
       })
       .catch((err) => {
         console.log(err);
       });
   };
+  // Axios cara 1 tanpa async
   const handleUpdate = ({ data }) => {
     axios
       .put(`http://127.0.0.1:8000/api/todos/${data.id}`, {
         task: data.task,
         status: "Done",
       })
-      .then((response) => {
-        console.log("data berhasil disimpan", response);
+      .then(() => {
+        setTodo((prevTodo) =>
+          prevTodo.map((todo) =>
+            todo.id === data.id ? { ...todo, status: "Done" } : todo
+          )
+        ); //membuat todo baru dengan mencari todo.id yang sama dengan data.id lalu mengubah statusnya menjadi done
       })
       .catch((err) => {
         console.log(err);
       });
   };
 
+  // Axios Cara 1, async
   const onLoad = async () => {
     const res = await fetch("http://127.0.0.1:8000/api/todos/");
 
@@ -51,7 +57,7 @@ const App = () => {
   };
   useEffect(() => {
     onLoad();
-  }, []);
+  }, [task]);
 
   return (
     <div className="bg-info p-5 rounded-4">
